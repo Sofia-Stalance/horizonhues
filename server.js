@@ -1,65 +1,79 @@
+// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const port = process.env.PORT || 3000;
 
-app.use(cors());
+// Use body-parser middleware to parse JSON bodies
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
-// Connect to SQLite database
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname)));
+
+// Connect to the SQLite database. It will create the file if it doesn't exist.
 const db = new sqlite3.Database('./database.db', (err) => {
     if (err) {
-        console.error('Error opening database:', err.message);
+        console.error('Error connecting to the database:', err.message);
     } else {
-        console.log('Connected to the SQLite database.');
+        console.log('Connected to the database.');
+        // Create the scores table if it doesn't exist
         db.run(`CREATE TABLE IF NOT EXISTS scores (
-            email TEXT PRIMARY KEY,
-            score INTEGER
-        )`, (createErr) => {
-            if (createErr) {
-                console.error('Error creating table:', createErr.message);
-            } else {
-                console.log('Table "scores" ready.');
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`, (err) => {
+            if (err) {
+                console.error('Error creating scores table:', err.message);
             }
         });
     }
 });
 
-// Endpoint to submit scores
+// Endpoint to submit scores. This is where your frontend sends the data.
 app.post('/submit-score', (req, res) => {
     const { email, score } = req.body;
-    if (!email || typeof score !== 'number') {
-        return res.status(400).json({ error: 'Invalid data' });
+
+    if (!email || typeof score === 'undefined') {
+        return res.status(400).send({ error: 'Email and score are required.' });
     }
 
-    const sql = `INSERT INTO scores (email, score) VALUES (?, ?) ON CONFLICT(email) DO UPDATE SET score = excluded.score`;
-    db.run(sql, [email, score], function(err) {
+    db.run(`INSERT INTO scores (email, score) VALUES (?, ?)`, [email, score], function(err) {
         if (err) {
-            console.error('Database error:', err.message);
-            return res.status(500).json({ error: 'Failed to save score' });
+            console.error('Error inserting score:', err.message);
+            return res.status(500).send({ error: 'Failed to save score.' });
         }
-        res.json({ message: 'Score saved successfully!', email, score });
+        console.log(`A row has been inserted with rowid ${this.lastID}`);
+        res.status(200).send({ message: 'Score saved successfully!', id: this.lastID });
     });
 });
 
-// Endpoint to view all scores
+// Endpoint to view all scores (optional, for your reference)
+// You can visit this endpoint in your browser to see the data: http://your-server-address/scores
 app.get('/scores', (req, res) => {
-    const sql = `SELECT * FROM scores ORDER BY score DESC`;
-    db.all(sql, [], (err, rows) => {
+    db.all("SELECT email, score, timestamp FROM scores ORDER BY timestamp DESC", [], (err, rows) => {
         if (err) {
-            console.error('Database error:', err.message);
-            return res.status(500).json({ error: 'Failed to retrieve scores' });
+            console.error('Error retrieving scores:', err.message);
+            return res.status(500).send({ error: 'Failed to retrieve scores.' });
         }
-        res.json(rows);
+        res.status(200).json(rows);
     });
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+
+process.on('SIGINT', () => {
+    db.close((err) => {
+        if (err) {
+            console.error('Error closing database:', err.message);
+        }
+        console.log('Database connection closed.');
+        process.exit(0);
+    });
 });
