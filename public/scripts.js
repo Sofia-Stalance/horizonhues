@@ -110,13 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // --- UPDATED FUNCTIONS ---
-
     const loadRound1Question = (index) => {
         round1Content.innerHTML = '';
         const image = rounds[0].images[index];
         const questionDiv = document.createElement('div');
-        // Added responsive Tailwind classes
         questionDiv.className = "flex flex-col md:flex-row items-center md:items-start md:space-x-4";
         questionDiv.innerHTML = `
             <img src="${image.url}" class="rounded-lg shadow-md w-full md:w-1/2 h-auto mb-4 md:mb-0" alt="Challenge Image ${index + 1}">
@@ -127,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         round1Content.appendChild(questionDiv);
 
-        // Add event listeners to the new buttons
         document.getElementById('real-btn').addEventListener('click', () => checkRound1Answer(index, 'real'));
         document.getElementById('ai-btn').addEventListener('click', () => checkRound1Answer(index, 'ai'));
     };
@@ -144,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         round2Content.appendChild(questionDiv);
 
-        // Add event listener to the new button
         document.getElementById('submit-btn').addEventListener('click', () => checkRound2Answer(index));
     };
     
@@ -172,18 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
         round3Content.appendChild(scenarioDiv);
     };
     
-    // --- UPDATED CHECKING LOGIC ---
-
     const checkRound1Answer = (index, choice) => {
         const correct = rounds[0].images[index].answer;
         if (choice === correct) {
             roundAnswers.round1[index] = 1;
         }
         currentQuestionInRound++;
+        // FIX: Check if we have more questions *after* incrementing
         if (currentQuestionInRound < rounds[0].images.length) {
             loadRound1Question(currentQuestionInRound);
         } else {
-            // FIX: This now correctly shows the next round button after the last question
             nextRoundBtn.classList.remove('hidden');
         }
     };
@@ -194,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (answer === correct) {
             roundAnswers.round2[index] = 1;
         }
-        // FIX: The quiz now always progresses after a submission
         currentQuestionInRound++;
         if (currentQuestionInRound < rounds[1].words.length) {
             loadRound2Question(currentQuestionInRound);
