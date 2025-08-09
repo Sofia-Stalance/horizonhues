@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elements ---
     const emailForm = document.getElementById('email-form');
     const emailInput = document.getElementById('email-input');
     const welcomeSection = document.getElementById('welcome-section');
@@ -10,18 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const round2Content = document.getElementById('round2-content');
     const round3Content = document.getElementById('round3-content');
     const nextRoundBtn = document.getElementById('next-round-btn');
-    
+    const roundNav = document.getElementById('round-nav'); // Corrected: Get the round-nav container
+
+    // --- State Variables ---
     let currentRound = 0;
     let currentQuestionInRound = 0;
     let finalScore = 0;
     let userEmail = '';
     
+    // Arrays to store quiz results (1 for correct, 0 for incorrect)
     const roundAnswers = {
         round1: new Array(4).fill(0),
         round2: new Array(4).fill(0),
         round3: new Array(4).fill(0),
     };
 
+    // --- Quiz Data ---
     const rounds = [
         // Round 1: AI vs Real Art
         {
@@ -77,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    // --- Event Listeners ---
     emailForm.addEventListener('submit', (e) => {
         e.preventDefault();
         userEmail = emailInput.value;
@@ -88,15 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Main function to load a round's content
     const loadRound = (roundIndex) => {
         const round = rounds[roundIndex];
         roundTitle.textContent = round.title;
         challengeInstructions.textContent = round.instructions;
 
+        // Hide all round content and the next round button initially
         round1Content.classList.add('hidden');
         round2Content.classList.add('hidden');
         round3Content.classList.add('hidden');
-        nextRoundBtn.classList.add('hidden');
+        roundNav.classList.add('hidden'); // Fix: Ensure the entire nav container is hidden
 
         if (round.type === "images") {
             round1Content.classList.remove('hidden');
@@ -110,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Load a specific question for Round 1
     const loadRound1Question = (index) => {
         round1Content.innerHTML = '';
         const image = rounds[0].images[index];
@@ -128,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('ai-btn').addEventListener('click', () => checkRound1Answer(index, 'ai'));
     };
 
+    // Load a specific question for Round 2
     const loadRound2Question = (index) => {
         round2Content.innerHTML = '';
         const word = rounds[1].words[index];
@@ -143,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('submit-btn').addEventListener('click', () => checkRound2Answer(index));
     };
     
+    // Load a specific question for Round 3
     const loadRound3Question = (index) => {
         round3Content.innerHTML = '';
         const scenario = rounds[2].scenarios[index];
@@ -167,17 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
         round3Content.appendChild(scenarioDiv);
     };
     
+    // --- Answer Checking Functions ---
     const checkRound1Answer = (index, choice) => {
         const correct = rounds[0].images[index].answer;
         if (choice === correct) {
             roundAnswers.round1[index] = 1;
         }
         currentQuestionInRound++;
-        // FIX: Check if we have more questions *after* incrementing
         if (currentQuestionInRound < rounds[0].images.length) {
             loadRound1Question(currentQuestionInRound);
         } else {
-            nextRoundBtn.classList.remove('hidden');
+            // Fix: Un-hide the entire nav container, not just the button
+            roundNav.classList.remove('hidden'); 
         }
     };
 
@@ -191,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentQuestionInRound < rounds[1].words.length) {
             loadRound2Question(currentQuestionInRound);
         } else {
-            nextRoundBtn.classList.remove('hidden');
+            roundNav.classList.remove('hidden');
         }
     };
 
@@ -204,16 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentQuestionInRound < rounds[2].scenarios.length) {
             loadRound3Question(currentQuestionInRound);
         } else {
-            nextRoundBtn.classList.remove('hidden');
+            roundNav.classList.remove('hidden');
         }
     };
     
+    // Handles progression to the next round
     nextRoundBtn.addEventListener('click', () => {
         currentRound++;
         currentQuestionInRound = 0;
         if (currentRound < rounds.length) {
             loadRound(currentRound);
         } else {
+            // All rounds are complete, submit the final score
             finalScore = roundAnswers.round1.reduce((sum, val) => sum + val, 0) +
                          roundAnswers.round2.reduce((sum, val) => sum + val, 0) +
                          roundAnswers.round3.reduce((sum, val) => sum + val, 0);
