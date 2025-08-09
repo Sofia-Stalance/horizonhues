@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             instructions: "Click 'Real' or 'AI' for the image.",
             type: "images",
             images: [
-                { url: "https://placehold.co/400x300/F0F0F0/000000?text=AI+Art+1", answer: "ai" },
-                { url: "https://placehold.co/400x300/F0F0F0/000000?text=Real+Art+1", answer: "real" },
-                { url: "https://placehold.co/400x300/F0F0F0/000000?text=AI+Art+2", answer: "ai" },
-                { url: "https://placehold.co/400x300/F0F0F0/000000?text=Real+Art+2", answer: "real" }
+                { url: "https://lucid.content-delivery-one.com/cdn-cgi/image/w=600,format=auto,metadata=none/66e2e5fbe0cca.png", answer: "ai" },
+                { url: "https://www.sheknows.com/wp-content/uploads/2018/08/poise-articleimage-real_1_dp4wis.jpeg", answer: "real" },
+                { url: "https://petapixel.com/assets/uploads/2022/08/fdfs19-800x533.jpg", answer: "ai" },
+                { url: "https://www.usnews.com/object/image/00000162-f3a3-d0d5-a57f-fbf3af9b0000/20-mount-rainier-national-park.jpg?update-time=1745872131347&size=responsive640", answer: "real" }
             ]
         },
         // Round 2: Scrambled Words
