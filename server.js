@@ -10,8 +10,13 @@ const port = process.env.PORT || 3000;
 // Use body-parser middleware to parse JSON bodies
 app.use(bodyParser.json());
 
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname)));
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicitly serve the index.html file for the root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Connect to the SQLite database. It will create the file if it doesn't exist.
 const db = new sqlite3.Database('./database.db', (err) => {
@@ -33,7 +38,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
     }
 });
 
-// Endpoint to submit scores. This is where your frontend sends the data.
+// Endpoint to submit scores.
 app.post('/submit-score', (req, res) => {
     const { email, score } = req.body;
 
@@ -51,8 +56,7 @@ app.post('/submit-score', (req, res) => {
     });
 });
 
-// Endpoint to view all scores (optional, for your reference)
-// You can visit this endpoint in your browser to see the data: http://your-server-address/scores
+// Endpoint to view all scores.
 app.get('/scores', (req, res) => {
     db.all("SELECT email, score, timestamp FROM scores ORDER BY timestamp DESC", [], (err, rows) => {
         if (err) {
