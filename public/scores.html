@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Scores Dashboard</title>
+    <!-- Include Tailwind CSS for consistent styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background-color: #2d3748;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <div class="container mx-auto p-8 bg-gray-800 text-gray-200 rounded-2xl shadow-lg">
+        <h1 class="text-4xl font-bold mb-6 text-center">Quiz Scores Dashboard</h1>
+        
+        <!-- Loading message while fetching scores -->
+        <div id="loading-message" class="text-center text-lg text-gray-400">Loading scores...</div>
+
+        <!-- The table of scores will be injected here by the script -->
+        <div id="scores-container"></div>
+    </div>
+    
+    <!-- Link to the new JavaScript file -->
+    <script src="admin-scores.js"></script>
+</body>
+</html>
