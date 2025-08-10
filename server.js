@@ -7,14 +7,14 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Use body-parser middleware to parse JSON bodies
+// Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
-// Connect to the SQLite database.
+// Connect to the SQLite database
 const db = new sqlite3.Database('./database.db', (err) => {
     if (err) {
         console.error('Error connecting to the database:', err.message);
-        return; // Exit if the database connection fails
+        return; 
     }
     console.log('Connected to the database.');
     
@@ -30,7 +30,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
         } else {
             console.log('Scores table is ready.');
 
-            // --- Server Endpoints (Defined first) ---
+            // --- Define API Endpoints first to avoid conflicts with static files ---
             
             // Endpoint to submit scores.
             app.post('/submit-score', (req, res) => {
@@ -61,6 +61,12 @@ const db = new sqlite3.Database('./database.db', (err) => {
                 });
             });
 
+            // --- Serve static files from the 'public' directory (Defined last) ---
+            // This will handle requests for index.html, scores.html, admin-scores.js, etc.
+            // The explicit routes you had before for these files are no longer needed.
+            app.use(express.static(path.join(__dirname, 'public')));
+
+
             // Start the server only after the database is ready
             app.listen(port, () => {
                 console.log(`Server running at http://localhost:${port}`);
@@ -68,20 +74,6 @@ const db = new sqlite3.Database('./database.db', (err) => {
         }
     });
 });
-
-// Explicitly serve the index.html file for the root path
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Explicitly serve the scores.html file
-app.get('/scores.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'scores.html'));
-});
-
-// Serve static files from the 'public' directory (Defined last)
-app.use(express.static(path.join(__dirname, 'public')));
-
 
 process.on('SIGINT', () => {
     db.close((err) => {
