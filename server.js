@@ -10,19 +10,6 @@ const port = process.env.PORT || 3000;
 // Use body-parser middleware to parse JSON bodies
 app.use(bodyParser.json());
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Explicitly serve the index.html file for the root path
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Explicitly serve the scores.html file
-app.get('/scores.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'scores.html'));
-});
-
 // Connect to the SQLite database.
 const db = new sqlite3.Database('./database.db', (err) => {
     if (err) {
@@ -32,7 +19,6 @@ const db = new sqlite3.Database('./database.db', (err) => {
     console.log('Connected to the database.');
     
     // Create the scores table if it doesn't exist
-    // The entire server initialization and all endpoints are now inside this callback
     db.run(`CREATE TABLE IF NOT EXISTS scores (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT NOT NULL,
@@ -44,7 +30,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
         } else {
             console.log('Scores table is ready.');
 
-            // --- Server Endpoints (Now placed inside the callback) ---
+            // --- Server Endpoints (Defined first) ---
             
             // Endpoint to submit scores.
             app.post('/submit-score', (req, res) => {
@@ -82,6 +68,20 @@ const db = new sqlite3.Database('./database.db', (err) => {
         }
     });
 });
+
+// Explicitly serve the index.html file for the root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Explicitly serve the scores.html file
+app.get('/scores.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'scores.html'));
+});
+
+// Serve static files from the 'public' directory (Defined last)
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 process.on('SIGINT', () => {
     db.close((err) => {
