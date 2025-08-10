@@ -18,20 +18,21 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Explicitly serve the scores.html file for the /scores path
+// Explicitly serve the scores.html file
 app.get('/scores.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'scores.html'));
 });
 
-// Connect to the SQLite database. It will create the file if it doesn't exist.
+// Connect to the SQLite database.
 const db = new sqlite3.Database('./database.db', (err) => {
     if (err) {
         console.error('Error connecting to the database:', err.message);
-        return;
+        return; // Exit if the database connection fails
     }
     console.log('Connected to the database.');
     
     // Create the scores table if it doesn't exist
+    // The entire server initialization and all endpoints are now inside this callback
     db.run(`CREATE TABLE IF NOT EXISTS scores (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT NOT NULL,
@@ -43,7 +44,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
         } else {
             console.log('Scores table is ready.');
 
-            // --- Server Endpoints ---
+            // --- Server Endpoints (Now placed inside the callback) ---
             
             // Endpoint to submit scores.
             app.post('/submit-score', (req, res) => {
